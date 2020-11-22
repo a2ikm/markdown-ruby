@@ -1,6 +1,7 @@
 require "markdown/version"
 
 module Markdown
-  class Error < StandardError; end
-  # Your code goes here...
+  def self.render_html(markdown)
+    markdown
+  end
 end

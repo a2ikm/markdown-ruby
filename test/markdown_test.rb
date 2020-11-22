@@ -1,11 +1,7 @@
 require "test_helper"
 
 class MarkdownTest < Minitest::Test
-  def test_that_it_has_a_version_number
-    refute_nil ::Markdown::VERSION
-  end
-
-  def test_it_does_something_useful
-    assert false
+  def test_paragraph
+    assert_markdown "hello"
   end
 end
