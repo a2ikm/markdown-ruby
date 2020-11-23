@@ -45,8 +45,8 @@ module Markdown
         advance
       end
 
-      literal = @source[start..@pos]
-      Token.new(:string, start, literal).tap { advance }
+      literal = @source[start...@pos]
+      Token.new(:string, start, literal)
     end
   end
 end
