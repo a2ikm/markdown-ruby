@@ -9,6 +9,11 @@ module Markdown
       @tokens = []
 
       until eof?
+        if newline?(current) && newline?(peek)
+          skip_newlines
+          next
+        end
+
         @tokens << read_string
       end
 
@@ -34,14 +39,20 @@ module Markdown
       @source[@pos+1]
     end
 
-    def string?(char)
-      !eof?
+    def newline?(char)
+      char == "\n"
+    end
+
+    def skip_newlines
+      while newline?(current)
+        advance
+      end
     end
 
     def read_string
       start = @pos
 
-      while string?(current)
+      while !eof? && (!newline?(current) || (newline?(current) && !newline?(peek)))
         advance
       end
 

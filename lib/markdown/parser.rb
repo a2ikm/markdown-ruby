@@ -7,13 +7,13 @@ module Markdown
     def parse
       @pos = 0
 
-      paragraph
+      document
     end
 
     private
 
     def eof?
-      current.type == :eof
+      current?(:eof)
     end
 
     def advance
@@ -32,6 +32,17 @@ module Markdown
       if current?(type)
         current.tap { advance }
       end
+    end
+
+    def document
+      token = current
+      paragraphs = []
+
+      while node = paragraph
+        paragraphs << node
+      end
+
+      Node.new(:document, token, paragraphs: paragraphs)
     end
 
     def paragraph
