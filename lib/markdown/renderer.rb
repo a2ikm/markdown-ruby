@@ -14,13 +14,19 @@ module Markdown
       case node.type
       when :document
         render_document(node)
+      when :heading
+        render_heading(node)
       when :paragraph
         render_paragraph(node)
       end
     end
 
     def render_document(node)
-      node.paragraphs.map { |paragraph| render_paragraph(paragraph) }.join
+      node.blocks.map { |block| render(block) }.join
+    end
+
+    def render_heading(node)
+      "<h%d>%s</h%d>\n" % [node.level, node.text, node.level]
     end
 
     def render_paragraph(node)

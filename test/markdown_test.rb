@@ -8,4 +8,13 @@ class MarkdownTest < Minitest::Test
     assert_markdown "hello\n\nworld"
     assert_markdown "hello\n\nworld\n\nagain"
   end
+
+  def test_heading
+    assert_markdown "# hello"
+    assert_markdown "## hello"
+    assert_markdown "### hello"
+    assert_markdown "#### hello"
+    assert_markdown "##### hello"
+    assert_markdown "###### hello"
+  end
 end

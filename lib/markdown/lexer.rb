@@ -14,6 +14,11 @@ module Markdown
           next
         end
 
+        if symbol?(current)
+          @tokens << read_symbols
+          next
+        end
+
         @tokens << read_string
       end
 
@@ -39,8 +44,16 @@ module Markdown
       @source[@pos+1]
     end
 
+    def control?(char)
+      newline?(char) || symbol?(char)
+    end
+
     def newline?(char)
       char == "\n"
+    end
+
+    def symbol?(char)
+      ["#", " "].include?(char)
     end
 
     def skip_newlines
@@ -49,15 +62,37 @@ module Markdown
       end
     end
 
+    def read_symbols
+      symbol = current
+      start = @pos
+
+      while current == symbol
+        advance
+      end
+
+      literal = @source[start...@pos]
+      Token.new(:symbol, start, literal)
+    end
+
     def read_string
       start = @pos
 
-      while !eof? && (!newline?(current) || (newline?(current) && !newline?(peek)))
+      while in_string?
         advance
       end
 
       literal = @source[start...@pos]
       Token.new(:string, start, literal)
+    end
+
+    def in_string?
+      return false if eof?
+
+      if newline?(current)
+        !newline?(peek)
+      else
+        !symbol?(current)
+      end
     end
   end
 end

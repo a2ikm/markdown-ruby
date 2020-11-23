@@ -24,25 +24,53 @@ module Markdown
       @tokens[@pos]
     end
 
-    def current?(type)
-      current && current.type == type
+    def peek
+      @tokens[@pos+1]
+    end
+
+    def peekpeek
+      @tokens[@pos+2]
+    end
+
+    def type?(token, type)
+      token && token.type == type
+    end
+
+    def symbol?(token, symbol)
+      type?(token, :symbol) && token.literal.start_with?(symbol)
     end
 
     def consume(type)
-      if current?(type)
+      if type?(current, type)
         current.tap { advance }
       end
     end
 
     def document
       token = current
-      paragraphs = []
+      blocks = []
 
-      while node = paragraph
-        paragraphs << node
+      while node = block
+        blocks << node
       end
 
-      Node.new(:document, token, paragraphs: paragraphs)
+      Node.new(:document, token, blocks: blocks)
+    end
+
+    def block
+      node = heading
+      return node if node
+
+      paragraph
+    end
+
+    def heading
+      if symbol?(current, "#") && symbol?(peek, " ") && type?(peekpeek, :string)
+        hashes = consume(:symbol)
+        consume(:symbol)
+        string = consume(:string)
+        Node.new(:heading, hashes, text: string.literal, level: hashes.literal.length)
+      end
     end
 
     def paragraph
