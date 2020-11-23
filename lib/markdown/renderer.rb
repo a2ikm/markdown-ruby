@@ -30,7 +30,7 @@ module Markdown
     end
 
     def render_paragraph(node)
-      "<p>" + node.text + "</p>\n"
+      "<p>%s</p>\n" % node.text
     end
   end
 end
