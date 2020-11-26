@@ -1,14 +1,26 @@
 require "markdown/version"
-require "markdown/token"
-require "markdown/node"
-require "markdown/lexer"
-require "markdown/parser"
-require "markdown/renderer"
 
 module Markdown
   def self.render_html(markdown)
-    tokens = Lexer.new(markdown).lex
-    nodes = Parser.new(tokens).parse
-    Renderer.new(nodes).render_html
+    out = StringIO.new
+
+    buffer = []
+    markdown.each_line do |line|
+      if line == "\n"
+        unless buffer.empty?
+          out.write "<p>#{buffer.join.chomp}</p>\n"
+          buffer.clear
+        end
+        next
+      end
+
+      buffer << line
+    end
+
+    unless buffer.empty?
+      out.write "<p>#{buffer.join.chomp}</p>\n"
+    end
+
+    out.string
   end
 end
