@@ -9,12 +9,14 @@ class MarkdownTest < Minitest::Test
     assert_markdown "hello\n\nworld\n\nagain"
   end
 
-  def test_heading
+  def test_atx_heading
     assert_markdown "# hello"
     assert_markdown "## hello"
     assert_markdown "### hello"
     assert_markdown "#### hello"
     assert_markdown "##### hello"
     assert_markdown "###### hello"
+
+    assert_markdown "####### hello"
   end
 end
