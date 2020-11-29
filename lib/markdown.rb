@@ -24,10 +24,10 @@ module Markdown
         next
       end
 
-      if m = line.match(/\A-\s+(.+)/)
+      if m = line.match(/\A[-+*]\s+(.+)/)
         list = []
         list << m[1]
-        while m = e.peek.match(/\A-\s+(.+)/) rescue nil
+        while m = e.peek.match(/\A[-+*]\s+(.+)/) rescue nil
           list << m[1]
           e.next
         end

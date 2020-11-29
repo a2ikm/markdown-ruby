@@ -23,5 +23,11 @@ class MarkdownTest < Minitest::Test
   def test_unordered_list
     assert_markdown "- hello"
     assert_markdown "- hello\n- world"
+
+    assert_markdown "+ hello"
+    assert_markdown "+ hello\n+ world"
+
+    assert_markdown "* hello"
+    assert_markdown "* hello\n* world"
   end
 end
