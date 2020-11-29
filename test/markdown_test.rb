@@ -29,5 +29,8 @@ class MarkdownTest < Minitest::Test
 
     assert_markdown "* hello"
     assert_markdown "* hello\n* world"
+
+    assert_markdown "- hello\n- world\n* again"
+    assert_markdown "- hello\n+ world\n* again"
   end
 end

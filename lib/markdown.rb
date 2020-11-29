@@ -24,10 +24,12 @@ module Markdown
         next
       end
 
-      if m = line.match(/\A[-+*]\s+(.+)/)
+      if m = line.match(/\A([-+*])\s+(.+)/)
+        sym = m[1]
+        re = Regexp.new("\\A\\#{sym}\\s+(.+)")
         list = []
-        list << m[1]
-        while m = e.peek.match(/\A[-+*]\s+(.+)/) rescue nil
+        list << m[2]
+        while m = e.peek.match(re) rescue nil
           list << m[1]
           e.next
         end
