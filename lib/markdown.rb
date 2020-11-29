@@ -4,7 +4,9 @@ module Markdown
   def self.render_html(markdown)
     buffer = []
     blocks = []
-    markdown.each_line do |line|
+    e = markdown.each_line
+
+    while line = e.next rescue nil
       if line == "\n"
         unless buffer.empty?
           blocks << [:p, nil, buffer.dup]
