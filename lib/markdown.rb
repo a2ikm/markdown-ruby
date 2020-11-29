@@ -24,6 +24,17 @@ module Markdown
         next
       end
 
+      if m = line.match(/\A-\s+(.+)/)
+        list = []
+        list << m[1]
+        while m = e.peek.match(/\A-\s+(.+)/) rescue nil
+          list << m[1]
+          e.next
+        end
+        blocks << [:ul, nil, list]
+        next
+      end
+
       buffer << line
     end
 
@@ -41,6 +52,12 @@ module Markdown
         out.write "<#{tag}>#{lines.join.chomp}</#{tag}>\n"
       when :p
         out.write "<p>#{lines.join.chomp}</p>\n"
+      when :ul
+        out.write "<ul>\n"
+        lines.each do |line|
+          out.write "<li>#{line.chomp}</li>\n"
+        end
+        out.write "</ul>\n"
       end
     end
 
