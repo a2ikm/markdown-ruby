@@ -1,68 +1,90 @@
 require "markdown/version"
+require "markdown/node"
 
 module Markdown
   def self.render_html(markdown)
-    buffer = []
-    blocks = []
+    document = parse(markdown)
+    render(document)
+  end
+
+  def self.parse(markdown)
     e = markdown.each_line
+    document = Document.new
+    parse_blocks(e, document)
+    document
+  end
+
+  def self.parse_blocks(e, document)
+    current = nil
 
     while line = e.next rescue nil
-      if line == "\n"
-        unless buffer.empty?
-          blocks << [:p, nil, buffer.dup]
-          buffer.clear
+      line.strip!
+
+      if line.empty?
+        if current
+          current = nil
         end
         next
-      end
-
-      if m = line.match(/\A(\#{1,6})\s+(.+)/)
-        unless buffer.empty?
-          blocks << [:p, nil, buffer.dup]
-          buffer.clear
+      elsif m = line.match(/(\A\#{1,6})\s+(.+)/)
+        heading = Heading.new(m[1].length)
+        heading.append(Text.new(m[2]))
+        document.append(heading)
+        current = nil
+      elsif m = line.match(/([-+*])\s+(.+)/)
+        if current.instance_of?(ListItem) && current.parent.disc == m[1]
+          list_item = ListItem.new
+          list_item.append(Text.new(m[2]))
+          current.parent.append(list_item)
+          current = list_item
+        else
+          list = List.new(m[1])
+          document.append(list)
+          list_item = ListItem.new
+          list_item.append(Text.new(m[2]))
+          list.append(list_item)
+          current = list_item
         end
-        blocks << [:h, { level: m[1].length }, [m[2]]]
-        next
+      elsif current
+        current.append(Text.new(line))
+      else
+        paragraph = Paragraph.new
+        paragraph.append(Text.new(line))
+        document.append(paragraph)
+        current = paragraph
       end
-
-      if m = line.match(/\A([-+*])\s+(.+)/)
-        sym = m[1]
-        re = Regexp.new("\\A\\#{sym}\\s+(.+)")
-        list = []
-        list << m[2]
-        while m = e.peek.match(re) rescue nil
-          list << m[1]
-          e.next
-        end
-        blocks << [:ul, nil, list]
-        next
-      end
-
-      buffer << line
     end
+  end
 
-    unless buffer.empty?
-      blocks << [:p, nil, buffer.dup]
-      buffer.clear
-    end
-
+  def self.render(document)
     out = StringIO.new
 
-    blocks.each do |(type, opts, lines)|
-      case type
-      when :h
-        tag = "h#{opts[:level]}"
-        out.write "<#{tag}>#{lines.join.chomp}</#{tag}>\n"
-      when :p
-        out.write "<p>#{lines.join.chomp}</p>\n"
-      when :ul
+    document.children.each do |node|
+      case node
+      when Paragraph
+        out.write "<p>"
+        out.write render_texts(node.children)
+        out.write "</p>\n"
+      when Heading
+        out.write "<h#{node.level}>"
+        out.write render_texts(node.children)
+        out.write "</h#{node.level}>\n"
+      when List
         out.write "<ul>\n"
-        lines.each do |line|
-          out.write "<li>#{line.chomp}</li>\n"
+        node.children.each do |item|
+          out.write "<li>"
+          out.write render_texts(item.children)
+          out.write "</li>\n"
         end
         out.write "</ul>\n"
+      else
+        raise "unexpected node: #{node}"
       end
     end
 
     out.string
+  end
+
+  def self.render_texts(texts)
+    texts.map(&:contents).join("\n")
   end
 end
