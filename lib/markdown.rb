@@ -57,31 +57,57 @@ module Markdown
 
   def self.render(document)
     out = StringIO.new
-
-    document.children.each do |node|
-      case node
-      when Paragraph
-        out.write "<p>"
-        out.write render_texts(node.children)
-        out.write "</p>\n"
-      when Heading
-        out.write "<h#{node.level}>"
-        out.write render_texts(node.children)
-        out.write "</h#{node.level}>\n"
-      when List
-        out.write "<ul>\n"
-        node.children.each do |item|
-          out.write "<li>"
-          out.write render_texts(item.children)
-          out.write "</li>\n"
-        end
-        out.write "</ul>\n"
-      else
-        raise "unexpected node: #{node}"
-      end
-    end
-
+    render_node(document, out)
     out.string
+  end
+
+  def self.render_node(node, out)
+    case node
+    when Document
+      render_document(node, out)
+    when Paragraph
+      render_paragraph(node, out)
+    when Heading
+      render_heading(node, out)
+    when List
+      render_list(node, out)
+    when ListItem
+      render_list_item(node, out)
+    else
+      raise "unexpected node: #{node}"
+    end
+  end
+
+  def self.render_document(node, out)
+    node.children.each do |child|
+      render_node(child, out)
+    end
+  end
+
+  def self.render_paragraph(node, out)
+    out.write "<p>"
+    out.write render_texts(node.children)
+    out.write "</p>\n"
+  end
+
+  def self.render_heading(node, out)
+    out.write "<h#{node.level}>"
+    out.write render_texts(node.children)
+    out.write "</h#{node.level}>\n"
+  end
+
+  def self.render_list(node, out)
+    out.write "<ul>\n"
+    node.children.each do |child|
+      render_node(child, out)
+    end
+    out.write "</ul>\n"
+  end
+
+  def self.render_list_item(node, out)
+    out.write "<li>"
+    out.write render_texts(node.children)
+    out.write "</li>\n"
   end
 
   def self.render_texts(texts)
