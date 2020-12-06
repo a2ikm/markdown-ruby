@@ -1,6 +1,12 @@
 require "test_helper"
 
 class MarkdownTest < Minitest::Test
+  def test_empty
+    assert_markdown ""
+    assert_markdown " "
+    assert_markdown "\n"
+  end
+
   def test_paragraph
     assert_markdown "hello"
     assert_markdown "hello\nworld"

@@ -58,7 +58,7 @@ module Markdown
   def self.render(document)
     out = StringIO.new
     render_node(document, out)
-    out.write "\n"
+    out.write "\n" if out.size > 0
     out.string
   end
 
