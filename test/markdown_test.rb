@@ -26,6 +26,10 @@ class MarkdownTest < Minitest::Test
     assert_markdown "####### hello"
   end
 
+  def test_atx_heading_with_trail
+    assert_markdown "# hello\n  world"
+  end
+
   def test_unordered_list
     assert_markdown "- hello"
     assert_markdown "- hello\n- world"
@@ -38,5 +42,9 @@ class MarkdownTest < Minitest::Test
 
     assert_markdown "- hello\n- world\n* again"
     assert_markdown "- hello\n+ world\n* again"
+  end
+
+  def test_unordered_list_with_trail
+    assert_markdown "- hello\n  world"
   end
 end

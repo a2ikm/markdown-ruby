@@ -16,6 +16,7 @@ module Markdown
 
   def self.parse_blocks(e, document)
     current = nil
+    text = nil
 
     while line = e.next rescue nil
       line.strip!
@@ -27,28 +28,32 @@ module Markdown
         next
       elsif m = line.match(/(\A\#{1,6})\s+(.+)/)
         heading = Heading.new(m[1].length)
-        heading.append(Text.new(m[2]))
+        text = Text.new(m[2])
+        heading.append(text)
         document.append(heading)
         current = nil
       elsif m = line.match(/([-+*])\s+(.+)/)
         if current.instance_of?(ListItem) && current.parent.disc == m[1]
           list_item = ListItem.new
-          list_item.append(Text.new(m[2]))
+          text = Text.new(m[2])
+          list_item.append(text)
           current.parent.append(list_item)
           current = list_item
         else
           list = List.new(m[1])
+          text = Text.new(m[2])
           document.append(list)
           list_item = ListItem.new
-          list_item.append(Text.new(m[2]))
+          list_item.append(text)
           list.append(list_item)
           current = list_item
         end
       elsif current
-        current.append(Text.new(line))
+        text.append(line)
       else
+        text = Text.new(line)
         paragraph = Paragraph.new
-        paragraph.append(Text.new(line))
+        paragraph.append(text)
         document.append(paragraph)
         current = paragraph
       end

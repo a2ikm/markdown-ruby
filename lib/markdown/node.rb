@@ -48,9 +48,13 @@ module Markdown
   class Text < Node
     attr_reader :contents
 
-    def initialize(contents)
+    def initialize(string)
       super()
-      @contents = contents
+      @contents = string
+    end
+
+    def append(string)
+      @contents += "\n" + string
     end
   end
 end
